@@ -19,6 +19,10 @@ PROJECT_DIR   = $(shell pwd)
 TERRAFORM_DIR = terraform
 ANSIBLE_DIR   = ansible
 SCRIPTS_DIR   = scripts
+TF_BACKEND    = $(TERRAFORM_DIR)/backend.tfbackend
+
+# Terraform init command (auto-detects backend config)
+TF_INIT = terraform init $(if $(wildcard $(TF_BACKEND)),-backend-config=$(PROJECT_DIR)/$(TF_BACKEND),)
 
 export ANSIBLE_CONFIG = $(PROJECT_DIR)/$(ANSIBLE_DIR)/ansible.cfg
 
@@ -35,7 +39,7 @@ deploy: ## 🚀 Full deploy: provision infra + configure VMs + deploy Wazuh
 	@echo "=============================================="
 	@echo ""
 	@echo "[1/3] Provisioning infrastructure with Terraform..."
-	cd $(TERRAFORM_DIR) && terraform init && terraform apply -auto-approve
+	cd $(TERRAFORM_DIR) && $(TF_INIT) && terraform apply -auto-approve
 	@echo ""
 	@echo "[2/3] Generating Ansible inventory..."
 	bash $(SCRIPTS_DIR)/generate-inventory.sh
@@ -57,6 +61,11 @@ destroy: ## 💥 Tear down ALL infrastructure (saves credits!)
 	cd $(TERRAFORM_DIR) && terraform destroy -auto-approve
 	@echo ""
 	@echo "  All resources destroyed. Credits preserved! 💰"
+
+setup: ## 🔧 First-time setup (init Terraform backend)
+	@echo "Initializing Terraform with backend config..."
+	cd $(TERRAFORM_DIR) && $(TF_INIT) -reconfigure
+	@echo "✅ Terraform initialized. Run 'make deploy' to start."
 
 plan: ## 📋 Preview infrastructure changes
 	cd $(TERRAFORM_DIR) && terraform plan
@@ -86,7 +95,7 @@ dashboard: ## 📊 Create professional SOC dashboard in Wazuh
 
 validate: ## ✅ Validate Terraform and Ansible syntax
 	@echo "Validating Terraform..."
-	cd $(TERRAFORM_DIR) && terraform fmt -check -recursive && terraform validate
+	cd $(TERRAFORM_DIR) && $(TF_INIT) && terraform fmt -check -recursive && terraform validate
 	@echo ""
 	@echo "Validating Ansible..."
 	cd $(ANSIBLE_DIR) && ansible-playbook -i inventory/hosts.ini site.yml --syntax-check

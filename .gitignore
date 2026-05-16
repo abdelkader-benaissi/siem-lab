@@ -13,9 +13,11 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
-# Terraform Variables (contains project IDs, credentials)
+# Terraform Variables & Backend (contains project IDs, bucket names)
 terraform.tfvars
 terraform/terraform.tfvars
+*.tfbackend
+!*.tfbackend.example
 
 # Ansible Generated Inventory (contains live IPs)
 ansible/inventory/hosts.ini

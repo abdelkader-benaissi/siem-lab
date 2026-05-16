@@ -1,0 +1,9 @@
+# =============================================================================
+# Backend Configuration (EXAMPLE)
+# =============================================================================
+# Copy this file and fill in your values:
+#   cp backend.tfbackend.example backend.tfbackend
+# =============================================================================
+
+bucket = "your-gcs-bucket-name"
+prefix = "siem-lab"
