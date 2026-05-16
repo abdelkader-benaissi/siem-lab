@@ -1,0 +1,53 @@
+# =============================================================================
+# Sensitive & Generated Files — DO NOT COMMIT
+# =============================================================================
+
+# Terraform State (contains infrastructure details + secrets)
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform Variables (contains project IDs, credentials)
+terraform.tfvars
+terraform/terraform.tfvars
+
+# Ansible Generated Inventory (contains live IPs)
+ansible/inventory/hosts.ini
+*.retry
+
+# SSH Keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+gcp_key
+gcp_key.pub
+
+# Credentials & Secrets
+.env
+*.env
+**/secrets/
+**/credentials/
+service-account*.json
+*-sa-key.json
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

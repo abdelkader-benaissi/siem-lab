@@ -1,0 +1,15 @@
+# =============================================================================
+# Global Variables — Applied to all hosts
+# =============================================================================
+
+timezone: "UTC"
+
+# Docker version to install
+docker_edition: "ce"
+
+# SSH hardening
+ssh_permit_root_login: "no"
+ssh_password_authentication: "no"
+
+# System tuning (required for Wazuh Indexer / OpenSearch)
+vm_max_map_count: 262144

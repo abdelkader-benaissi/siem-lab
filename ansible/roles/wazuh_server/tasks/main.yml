@@ -1,0 +1,90 @@
+# =============================================================================
+# Wazuh Server Role — Deploy All-in-One via Docker Compose
+# =============================================================================
+# Deploys: Wazuh Manager + Wazuh Indexer + Wazuh Dashboard
+# Method:  Official wazuh-docker repository (single-node)
+# =============================================================================
+
+# --------------- Prerequisites ---------------
+
+- name: Ensure git is installed
+  package:
+    name: git
+    state: present
+
+- name: Ensure Docker Compose plugin is available
+  command: docker compose version
+  register: compose_check
+  changed_when: false
+  failed_when: compose_check.rc != 0
+
+# --------------- Clone Wazuh Docker Repository ---------------
+
+- name: Clone Wazuh Docker repository
+  git:
+    repo: "{{ wazuh_docker_repo }}"
+    dest: "{{ wazuh_install_dir }}"
+    version: "{{ wazuh_docker_version }}"
+    force: yes
+
+# --------------- Generate TLS Certificates ---------------
+
+- name: Check if certificates already exist
+  stat:
+    path: "{{ wazuh_install_dir }}/single-node/config/wazuh_indexer_ssl_certs"
+  register: certs_dir
+
+- name: Generate indexer certificates
+  command: docker compose -f generate-indexer-certs.yml run --rm generator
+  args:
+    chdir: "{{ wazuh_install_dir }}/single-node"
+  when: not certs_dir.stat.exists
+
+# --------------- Deploy Wazuh Stack ---------------
+
+- name: Start Wazuh stack with Docker Compose
+  command: docker compose up -d
+  args:
+    chdir: "{{ wazuh_install_dir }}/single-node"
+  register: wazuh_deploy
+  changed_when: "'Started' in wazuh_deploy.stdout or 'Created' in wazuh_deploy.stdout"
+
+# --------------- Health Check ---------------
+
+- name: Wait for Wazuh Manager API to be ready
+  uri:
+    url: "https://localhost:55000/"
+    method: GET
+    user: "{{ wazuh_dashboard_user }}"
+    password: "{{ wazuh_dashboard_password }}"
+    validate_certs: no
+    status_code: 200
+  register: wazuh_api
+  until: wazuh_api.status == 200
+  retries: 30
+  delay: 10
+  ignore_errors: yes
+
+- name: Wait for Wazuh Dashboard to be accessible
+  uri:
+    url: "https://localhost:443/"
+    method: GET
+    validate_certs: no
+    status_code: [200, 302]
+  register: dashboard_check
+  until: dashboard_check.status in [200, 302]
+  retries: 30
+  delay: 10
+  ignore_errors: yes
+
+- name: Display Wazuh deployment status
+  debug:
+    msg: |
+      ====================================================
+      Wazuh SIEM Deployment Complete!
+      ====================================================
+      Dashboard URL:  https://{{ ansible_host }}
+      Username:       {{ wazuh_dashboard_user }}
+      Password:       {{ wazuh_dashboard_password }}
+      API:            https://{{ ansible_host }}:55000
+      ====================================================

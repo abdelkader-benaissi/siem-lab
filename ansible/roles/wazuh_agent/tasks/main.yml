@@ -1,0 +1,101 @@
+# =============================================================================
+# Wazuh Agent Role — Install and enroll agents on monitored VMs
+# =============================================================================
+# Supports: Ubuntu/Debian (apt) and Rocky/CentOS (dnf)
+# Connects to the Wazuh Manager using the internal IP
+# =============================================================================
+
+# --------------- Add Wazuh Repository (Debian/Ubuntu) ---------------
+
+- name: Import Wazuh GPG key (Debian/Ubuntu)
+  apt_key:
+    url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Add Wazuh repository (Debian/Ubuntu)
+  apt_repository:
+    repo: "deb https://packages.wazuh.com/4.x/apt/ stable main"
+    state: present
+    filename: wazuh
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+# --------------- Add Wazuh Repository (Rocky/CentOS) ---------------
+
+- name: Import Wazuh GPG key (Rocky/CentOS)
+  rpm_key:
+    key: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Add Wazuh repository (Rocky/CentOS)
+  yum_repository:
+    name: wazuh
+    description: Wazuh repository
+    baseurl: https://packages.wazuh.com/4.x/yum/
+    gpgcheck: yes
+    gpgkey: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+# --------------- Install Wazuh Agent ---------------
+
+- name: Install Wazuh agent (Debian/Ubuntu)
+  apt:
+    name: "wazuh-agent"
+    state: present
+    update_cache: yes
+  environment:
+    WAZUH_MANAGER: "{{ wazuh_manager_ip }}"
+  when: ansible_os_family == "Debian"
+
+- name: Install Wazuh agent (Rocky/CentOS)
+  dnf:
+    name: "wazuh-agent"
+    state: present
+  environment:
+    WAZUH_MANAGER: "{{ wazuh_manager_ip }}"
+  when: ansible_os_family == "RedHat"
+
+# --------------- Configure Agent ---------------
+
+- name: Deploy Wazuh agent configuration
+  template:
+    src: ossec.conf.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: wazuh
+    mode: "0640"
+  notify: restart wazuh-agent
+
+# --------------- Start Agent Service ---------------
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and enable Wazuh agent
+  systemd:
+    name: wazuh-agent
+    state: started
+    enabled: yes
+
+# --------------- Verify Connection ---------------
+
+- name: Wait for agent to connect to manager
+  command: sleep 15
+  changed_when: false
+
+- name: Verify agent status
+  command: /var/ossec/bin/wazuh-control status
+  register: agent_status
+  changed_when: false
+  ignore_errors: yes
+
+- name: Display agent status
+  debug:
+    msg: |
+      Agent: {{ inventory_hostname }}
+      Manager: {{ wazuh_manager_ip }}
+      Status: {{ agent_status.stdout | default('Check manually') }}

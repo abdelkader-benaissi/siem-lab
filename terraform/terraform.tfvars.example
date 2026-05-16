@@ -1,0 +1,19 @@
+# =============================================================================
+# SIEM Lab — Terraform Variables (EXAMPLE)
+# =============================================================================
+# Copy this file to terraform.tfvars and fill in your values:
+#   cp terraform.tfvars.example terraform.tfvars
+# =============================================================================
+
+# GCP Project Settings
+project_id = "your-gcp-project-id"
+region     = "europe-west1"
+zone       = "europe-west1-b"
+
+# SSH Access
+ssh_user         = "your-username"
+ssh_pub_key_path = "~/.ssh/gcp_key.pub"
+
+# Restrict SSH to your IP for security (RECOMMENDED)
+# Find your IP: curl -s ifconfig.me
+# allowed_ssh_cidr = "YOUR_PUBLIC_IP/32"

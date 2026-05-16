@@ -1,0 +1,10 @@
+# =============================================================================
+# Agent Variables
+# =============================================================================
+
+# Wazuh agent version to install
+wazuh_agent_version: "4.14.3-1"
+
+# The manager IP is auto-populated by generate-inventory.sh
+# It can also be set here as a fallback:
+# wazuh_manager_ip: "10.10.1.x"

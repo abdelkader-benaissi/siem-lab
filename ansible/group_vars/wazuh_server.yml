@@ -1,0 +1,14 @@
+# =============================================================================
+# Wazuh Server Variables
+# =============================================================================
+
+wazuh_docker_version: "v4.14.3"
+wazuh_docker_repo: "https://github.com/wazuh/wazuh-docker.git"
+wazuh_install_dir: "/opt/wazuh-docker"
+
+# Dashboard credentials
+# NOTE: These are the Wazuh Docker default credentials.
+# For production, change via Wazuh's internal user management.
+# See: https://documentation.wazuh.com/current/user-manual/user-administration/password-management.html
+wazuh_dashboard_user: "admin"
+wazuh_dashboard_password: "SecretPassword"

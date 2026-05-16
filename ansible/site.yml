@@ -1,0 +1,26 @@
+# =============================================================================
+# SIEM Lab — Master Playbook
+# =============================================================================
+# Orchestrates the full SIEM lab configuration:
+#   1. Common setup (all VMs): packages, Docker, SSH hardening
+#   2. Wazuh server deployment (Docker Compose)
+#   3. Wazuh agent installation and enrollment
+# =============================================================================
+
+- name: "Phase 1: Common setup for all VMs"
+  hosts: all
+  become: yes
+  roles:
+    - common
+
+- name: "Phase 2: Deploy Wazuh Server (Manager + Indexer + Dashboard)"
+  hosts: wazuh_server
+  become: yes
+  roles:
+    - wazuh_server
+
+- name: "Phase 3: Install and enroll Wazuh Agents"
+  hosts: agents
+  become: yes
+  roles:
+    - wazuh_agent

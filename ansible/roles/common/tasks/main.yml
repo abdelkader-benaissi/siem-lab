@@ -1,0 +1,157 @@
+# =============================================================================
+# Common Role — Base configuration for ALL VMs
+# =============================================================================
+# Handles: package updates, essential tools, Docker CE, SSH hardening,
+#          system tuning, and timezone configuration
+# =============================================================================
+
+# --------------- System Updates ---------------
+
+- name: Wait for cloud-init to finish
+  command: cloud-init status --wait
+  changed_when: false
+  ignore_errors: yes
+
+- name: Update apt cache (Debian/Ubuntu)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Update dnf cache (Rocky/CentOS)
+  dnf:
+    update_cache: yes
+  when: ansible_os_family == "RedHat"
+
+# --------------- Essential Packages ---------------
+
+- name: Install essential packages (Debian/Ubuntu)
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - htop
+      - net-tools
+      - vim
+      - gnupg
+      - lsb-release
+      - ca-certificates
+      - apt-transport-https
+      - software-properties-common
+      - python3-pip
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Enable EPEL repository (Rocky/CentOS)
+  dnf:
+    name: epel-release
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Install essential packages (Rocky/CentOS)
+  dnf:
+    name:
+      - curl
+      - wget
+      - git
+      - htop
+      - net-tools
+      - vim-enhanced
+      - gnupg2
+      - ca-certificates
+      - python3-pip
+      - yum-utils
+    state: present
+  when: ansible_os_family == "RedHat"
+
+# --------------- Docker CE Installation ---------------
+
+- name: Add Docker GPG key (Debian/Ubuntu)
+  apt_key:
+    url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Add Docker repository (Debian/Ubuntu)
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+  when: ansible_os_family == "Debian"
+
+- name: Add Docker repository (Rocky/CentOS)
+  yum_repository:
+    name: docker-ce
+    description: Docker CE Stable
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Install Docker CE (Debian/Ubuntu)
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install Docker CE (Rocky/CentOS)
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Start and enable Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+# --------------- System Tuning ---------------
+
+- name: Set vm.max_map_count for OpenSearch/Wazuh Indexer
+  sysctl:
+    name: vm.max_map_count
+    value: "{{ vm_max_map_count }}"
+    state: present
+    reload: yes
+
+# --------------- SSH Hardening ---------------
+
+- name: Disable root login via SSH
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PermitRootLogin"
+    line: "PermitRootLogin {{ ssh_permit_root_login }}"
+    state: present
+  notify: restart sshd
+
+- name: Disable password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PasswordAuthentication"
+    line: "PasswordAuthentication {{ ssh_password_authentication }}"
+    state: present
+  notify: restart sshd
+
+# --------------- Timezone ---------------
+
+- name: Set timezone
+  timezone:
+    name: "{{ timezone }}"

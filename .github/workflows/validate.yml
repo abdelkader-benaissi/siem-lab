@@ -1,0 +1,63 @@
+name: Validate IaC
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'terraform/**'
+      - 'ansible/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'terraform/**'
+      - 'ansible/**'
+
+jobs:
+  terraform-validate:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        working-directory: terraform
+
+      - name: Terraform Init (backend disabled)
+        run: terraform init -backend=false
+        working-directory: terraform
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: terraform
+
+  ansible-lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ansible Lint
+        run: pip install ansible-lint ansible
+
+      - name: Run Ansible Lint
+        run: ansible-lint site.yml
+        working-directory: ansible
+
+      - name: Ansible Syntax Check
+        run: ansible-playbook site.yml --syntax-check
+        working-directory: ansible

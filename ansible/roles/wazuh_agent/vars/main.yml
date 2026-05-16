@@ -1,0 +1,4 @@
+# Default variables for wazuh_agent role
+# Can be overridden in group_vars/agents.yml
+
+wazuh_manager_ip: "10.10.1.2"
