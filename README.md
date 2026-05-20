@@ -122,19 +122,6 @@ siem-lab/
     └── validate.yml                  # CI: Terraform + Ansible lint
 ```
 
-## 💰 Cost Estimate
-
-| Resource | Type | Cost/hour |
-|:---|:---|:---|
-| Wazuh Server | e2-standard-2 (8GB, 2 vCPU) | ~$0.067 |
-| 3× Agent VMs | e2-small (2GB, 1 vCPU) | ~$0.051 |
-| Storage | 90 GB pd-standard | ~$0.003 |
-| **Total** | | **~$0.12/hr** |
-
-**8-hour lab session ≈ $1** → Your $300 GCP credit supports **300+ sessions**.
-
-> ⚠️ **Always run `make destroy` when done!**
-
 ## 🛠️ Available Commands
 
 ```bash
@@ -183,15 +170,6 @@ make validate      # ✅ Validate Terraform & Ansible syntax
 | OS | Ubuntu 22.04, Rocky Linux 9, Debian 12 |
 | CI/CD | GitHub Actions (validate on push) |
 
-## 📖 What I Learned
-
-- Designing segmented cloud networks with Terraform modules
-- Multi-OS configuration management with Ansible roles
-- Deploying and managing Wazuh SIEM in a Docker environment
-- Writing security-focused firewall rules (least privilege)
-- Building reproducible, ephemeral lab environments for cost efficiency
-- Bridging Terraform and Ansible with automated inventory generation
-- Mapping simulated attacks to the MITRE ATT&CK framework
 
 ## 📝 License
 

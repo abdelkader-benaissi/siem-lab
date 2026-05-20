@@ -1,0 +1,22 @@
+# =============================================================================
+# Ansible Lint Configuration
+# =============================================================================
+# Configuration for a lab/educational project — strict linting rules
+# that don't impact functionality are relaxed for readability.
+# =============================================================================
+
+skip_list:
+  # FQCN — short module names are clearer for educational purposes
+  - fqcn[action-core]
+  - fqcn[action]
+  # Handler naming convention — "restart sshd" is conventional and clear
+  - name[casing]
+  # Role variable prefix — not needed for a standalone lab project
+  - var-naming[no-role-prefix]
+
+warn_list:
+  # Show as warnings but don't fail CI
+  - ignore-errors
+  - yaml[truthy]
+  - yaml[line-length]
+  - no-changed-when
