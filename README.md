@@ -29,11 +29,31 @@ GCP Project (europe-west1)
 
 </details>
 
-## 📸 Dashboard Screenshots
+## 📸 Attack Simulation — Before & After
 
-| Overview — Active agents & alert summary | Endpoints — Agent OS distribution |
+### 🟢 BEFORE Attack — Clean State
+> Dashboard overview after fresh deployment. All 3 agents active, **zero critical/high alerts**.
+
+![Before Attack — Clean Dashboard](docs/screenshots/01-before-overview.png)
+
+---
+
+### 🔴 AFTER Attack — Threats Detected
+> After running `make simulate` with 7 MITRE ATT&CK vectors. Note the jump: **Critical 0→1, High 0→7**.
+
+| Overview — Alert counts spiked | Security Events — Attack patterns visible |
 |:---:|:---:|
-| ![Wazuh Overview](docs/screenshots/wazuh-overview.png) | ![Wazuh Agents](docs/screenshots/wazuh-agents.png) |
+| ![After Overview](docs/screenshots/02-after-overview.png) | ![Security Events](docs/screenshots/03-after-security-events.png) |
+
+| MITRE ATT&CK — Technique mapping | Agent Ubuntu — 307 events, spike visible |
+|:---:|:---:|
+| ![MITRE ATT&CK](docs/screenshots/04-mitre-attack.png) | ![Agent Detail](docs/screenshots/05-agent-ubuntu-detail.png) |
+
+### 📊 Agent Ubuntu — Event Breakdown
+> **307 total events**, 8 Level 12+ alerts, 10 auth failures. Clear spikes in syscheck, PAM, sudo, and invalid_login.
+
+![Agent Ubuntu Events](docs/screenshots/06-agent-ubuntu-events.png)
+
 
 ## ✨ Features
 
