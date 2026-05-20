@@ -39,10 +39,15 @@ output "vm_internal_ips" {
 # Quick SSH Commands
 # -----------------------------------------------------------------------------
 
+output "ssh_user" {
+  value       = var.ssh_user
+  description = "SSH username configured for all VMs"
+}
+
 output "ssh_commands" {
   value = {
     for name, ip in module.compute.vm_external_ips :
-    name => "ssh -i ~/.ssh/gcp_key abdou@${ip}"
+    name => "ssh -i ~/.ssh/gcp_key ${var.ssh_user}@${ip}"
   }
   description = "Ready-to-use SSH commands for each VM"
 }

@@ -20,6 +20,7 @@ cd "$TERRAFORM_DIR"
 
 WAZUH_EXTERNAL_IP=$(terraform output -raw wazuh_server_ip 2>/dev/null)
 WAZUH_INTERNAL_IP=$(terraform output -raw wazuh_server_internal_ip 2>/dev/null)
+SSH_USER=$(terraform output -raw ssh_user 2>/dev/null || echo "ubuntu")
 
 # Get all external IPs as JSON and parse
 VM_IPS_JSON=$(terraform output -json vm_external_ips 2>/dev/null)
@@ -59,7 +60,7 @@ agent-debian ansible_host=${AGENT_DEBIAN_IP}
 wazuh_manager_ip=${WAZUH_INTERNAL_IP}
 
 [all:vars]
-ansible_user=abdou
+ansible_user=${SSH_USER}
 ansible_ssh_private_key_file=~/.ssh/gcp_key
 ansible_python_interpreter=/usr/bin/python3
 EOF

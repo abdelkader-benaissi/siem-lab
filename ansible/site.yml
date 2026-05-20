@@ -2,10 +2,21 @@
 # SIEM Lab — Master Playbook
 # =============================================================================
 # Orchestrates the full SIEM lab configuration:
-#   1. Common setup (all VMs): packages, Docker, SSH hardening
-#   2. Wazuh server deployment (Docker Compose)
-#   3. Wazuh agent installation and enrollment
+#   1. Wait for VMs to become reachable via SSH
+#   2. Common setup (all VMs): packages, Docker, SSH hardening
+#   3. Wazuh server deployment (Docker Compose)
+#   4. Wazuh agent installation and enrollment
 # =============================================================================
+
+- name: "Phase 0: Wait for all VMs to become reachable"
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to become available
+      wait_for_connection:
+        timeout: 180
+        delay: 10
+        sleep: 5
 
 - name: "Phase 1: Common setup for all VMs"
   hosts: all
