@@ -7,6 +7,8 @@
 
 ## 🏗️ Architecture
 
+> 📐 **[Open interactive diagram →](docs/architecture.drawio)** *(editable in [draw.io](https://app.diagrams.net/))*
+
 ![Architecture Diagram](docs/architecture.png)
 
 <details>
@@ -28,6 +30,7 @@ GCP Project (europe-west1)
 ```
 
 </details>
+
 
 ## 📸 Attack Simulation — Before & After
 
