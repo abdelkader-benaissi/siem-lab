@@ -178,9 +178,7 @@ siem-lab/
 │   ├── attack-simulation.sh          # 7 MITRE ATT&CK attack vectors
 │   └── create-dashboard.sh           # Auto-create SOC dashboard
 ├── docs/
-│   ├── architecture.md               # Design decisions
-│   ├── architecture.png              # Architecture diagram
-│   └── screenshots/                  # Dashboard screenshots
+│   └── screenshots/                  # Before/after dashboard captures
 └── .github/workflows/
     └── validate.yml                  # CI: Terraform + Ansible lint
 ```
