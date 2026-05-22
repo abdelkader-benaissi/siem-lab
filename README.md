@@ -7,9 +7,49 @@
 
 ## 🏗️ Architecture
 
-> 📐 **[Open interactive diagram →](docs/architecture.drawio)** *(editable in [draw.io](https://app.diagrams.net/))*
+```mermaid
+graph TD
+    Analyst["🧑‍💻 SOC Analyst"]
+    Internet["🌐 Internet"]
 
-![Architecture Diagram](docs/architecture.png)
+    subgraph GCP["GCP Project — europe-west1"]
+        subgraph VPC["VPC: siem-lab-vpc  10.10.0.0/16"]
+
+            subgraph MGMT["mgmt-subnet  10.10.1.0/24"]
+                subgraph WAZUH["wazuh-server  e2-standard-2 · Ubuntu 22.04"]
+                    WM["Wazuh Manager"]
+                    WI["Wazuh Indexer"]
+                    WD["Wazuh Dashboard :443"]
+                end
+                FW["🔒 Firewall: SSH restricted · 1514/1515 internal only"]
+            end
+
+            subgraph AGENTS["agents-subnet  10.10.2.0/24"]
+                A1["agent-ubuntu\ne2-small · Ubuntu 22.04\nWazuh Agent"]
+                A2["agent-rocky\ne2-small · Rocky Linux 9\nWazuh Agent"]
+                A3["agent-debian\ne2-small · Debian 12\nWazuh Agent"]
+            end
+        end
+    end
+
+    subgraph STACK["Tech Stack"]
+        T1["Terraform — infra provisioning"]
+        T2["Ansible — agent configuration"]
+        T3["Docker Compose — Wazuh stack"]
+        T4["GitHub Actions — CI/CD"]
+    end
+
+    Analyst  -->|"HTTPS :443"| WD
+    Internet -->|"SSH restricted"| FW
+    FW --> WAZUH
+
+    A1 -->|"1514/1515"| WM
+    A2 -->|"1514/1515"| WM
+    A3 -->|"1514/1515"| WM
+
+    WM --- WI
+    WI --- WD
+```
 
 <details>
 <summary>Text-based diagram (for accessibility)</summary>
